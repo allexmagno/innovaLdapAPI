@@ -1,0 +1,49 @@
+[default]
+DEBUG = false
+SQLALCHEMY_DATABASE_URI = "sqlite:///inndapi.db"
+TITLE = "InnDAPI"
+SECRET_KEY = "sadkaom0a29j2"
+PASSWORD_SCHEMES = ['pbkdf2_sha512', 'md5_crypt']
+EXTENSIONS = [
+     "inndapi.extensions.auth",
+     "inndapi.ext.commands",
+     "inndapi.ext.database",
+     "inndapi.ext.serialization",
+     "inndapi.blueprints.controller",
+]
+
+[production]
+SQLALCHEMY_DATABASE_URI = "postgres:///"
+
+[development]
+TEMPLATES_AUTO_RELOAD = true
+DEBUG = true
+DEBUG_TOOLBAR_ENABLED = true
+DEBUG_TB_INTERCEPT_REDIRECTS = false
+DEBUG_TB_PROFILER_ENABLED = true
+DEBUG_TB_TEMPLATE_EDITOR_ENABLED = true
+DEBUG_TB_PANELS = [
+    "flask_debugtoolbar.panels.versions.VersionDebugPanel",
+    "flask_debugtoolbar.panels.sqlalchemy.SQLAlchemyDebugPanel",
+    "flask_debugtoolbar.panels.timer.TimerDebugPanel",
+    "flask_debugtoolbar.panels.headers.HeaderDebugPanel",
+    "flask_debugtoolbar.panels.request_vars.RequestVarsDebugPanel",
+    "flask_debugtoolbar.panels.template.TemplateDebugPanel",
+    "flask_debugtoolbar.panels.route_list.RouteListDebugPanel",
+    "flask_debugtoolbar.panels.logger.LoggingPanel",
+    "flask_debugtoolbar.panels.profiler.ProfilerDebugPanel",
+    "flask_debugtoolbar.panels.config_vars.ConfigVarsDebugPanel",
+]
+SQLALCHEMY_DATABASE_URI = "mysql+pymysql://root:mysqldocker@127.0.0.1/inndapi"
+TITLE = "InnDAPI"
+SECRET_KEY = "sadkaom0a29j2"
+PASSWORD_SCHEMES = ['pbkdf2_sha512', 'md5_crypt']
+EXTENSIONS = [
+     #"inndapi.ext.auth",
+     "inndapi.ext.commands",
+     "inndapi.ext.database",
+     "inndapi.ext.serialization",
+     "inndapi.ext.doc",
+     "inndapi.blueprints.controller",
+]
+SQLALCHEMY_TRACK_MODIFICATIONS=false
