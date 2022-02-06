@@ -4,8 +4,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from inndapi.enum import MailStatusEnum
 
-# from flask_mail import Message
-# from inndapi.ext import mail
+
 class MailService:
 
     def __init__(self, sender):
