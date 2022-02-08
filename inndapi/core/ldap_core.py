@@ -3,7 +3,7 @@ from ldap import modlist, initialize, LDAPError, SCOPE_SUBTREE, SCOPE_ONELEVEL, 
 from .enum import *
 
 
-class LdapService:
+class LdapCore:
 
     def __init__(self, host: str, port: int, base_dn: str, bind_dn: str, bind_credential: str):
         self.host = host

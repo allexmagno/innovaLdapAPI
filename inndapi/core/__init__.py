@@ -1,2 +1,3 @@
 from .enum import *
-from .ldap_service import LdapService
+from .ldap_core import LdapCore
+from .mail_core import MailCore

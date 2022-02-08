@@ -13,7 +13,7 @@ class InnovaPerson(db.Model, SerializerMixin):
     cpf = db.Column(db.String(140))
     passport = db.Column(db.String(140))
     password = db.Column(db.String(140))
-    domain = db.Column(db.String(140), nullable=False)
+    domain = db.Column(db.String(140), db.ForeignKey('innova-domain.id'), nullable=False)
     to_update = db.Column(db.JSON)
     affiliations = db.relationship(
         'InnovaAffiliation',
