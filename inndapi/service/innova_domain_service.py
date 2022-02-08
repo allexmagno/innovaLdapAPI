@@ -47,21 +47,22 @@ class InnovaDomainService(AbstractCrud):
         return old_domain
 
     def send_mail_create(self, person: InnovaPerson):
-        entity: InnovaDomain = self.find_by_pk(person.domain)
-        mail = MailCore(entity.mail_server)
+        domain: InnovaDomain = self.find_by_pk(person.domain)
+        mail = MailCore(domain.mail_server)
 
         file = open('inndapi/static/mail.html')
         body = ''
         for line in file:
-            a = line.replace("_EMAIL_", person.email)
-            b = a.replace("_PERSON_UID", person.uid)
-            body += b
+            a = line.replace('_INPNAME_', person.name + " " + person.surname)
+            b = a.replace('_EMAIL_', person.email)
+            c = b.replace("_PERSON_UID", person.uid)
+            body += c
         file.close()
 
         with mail:
             mail.send(
                 subject='[.INOVA RS] Registro de Contas Federadas',
-                recipient='ct.allex@gmail.com',
+                recipient=domain.mail_server.address,
                 body=body,
                 subtype='html'
             )
