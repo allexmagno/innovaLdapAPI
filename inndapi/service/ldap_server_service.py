@@ -5,7 +5,7 @@ from sqlalchemy import exc
 from .abstract_crud import AbstractCrud
 from .innova_ldap_sync_service import InnovaLdapSyncService
 from .error_handler import *
-from inndapi.core import LdapService, LdapStatus
+from inndapi.core import LdapCore, LdapStatus
 from inndapi.model import InnovaPerson
 from inndapi.model import InnovaAffiliation
 from inndapi.model import InnovaLdapSync
@@ -94,7 +94,7 @@ class LdapServerService(AbstractCrud):
             if not entry.ldap_sync.status == InnovaLdapSyncEnum.VALID:
                 raise ResourceDoesNotExist(InnovaPerson, entry.uid)
 
-        ldap = LdapService(
+        ldap = LdapCore(
             host=entity.ip,
             port=entity.port,
             base_dn=entity.base_dn,
@@ -130,7 +130,7 @@ class LdapServerService(AbstractCrud):
 
     def sync(self, pk: LdapServer.id):
         entity: LdapServer = self.find_by_pk(pk)
-        ldap = LdapService(
+        ldap = LdapCore(
             host=entity.ip,
             port=entity.port,
             base_dn=entity.base_dn,
@@ -213,7 +213,7 @@ class LdapServerService(AbstractCrud):
                 and not person.ldap_sync.status == InnovaLdapSyncEnum.UPDATE:
             raise ResourceDoesNotExist(InnovaPerson, person.uid)
 
-        ldap = LdapService(
+        ldap = LdapCore(
             host=entity.ip,
             port=entity.port,
             base_dn=entity.base_dn,
@@ -232,7 +232,7 @@ class LdapServerService(AbstractCrud):
         return self.entry_service.update(entity=new_person, from_ldap=True)
 
     @staticmethod
-    def process_data(ldap: LdapService, person: InnovaPerson, search_dn: str = None):
+    def process_data(ldap: LdapCore, person: InnovaPerson, search_dn: str = None):
 
         def parse_attr(attr_list, obj_list):
             attrs = {}

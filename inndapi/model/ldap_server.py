@@ -13,27 +13,16 @@ from sqlalchemy.orm import validates
 class LdapServer(db.Model, SerializerMixin):
     __tablename__ = 'ldap-server'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    domain = db.Column(db.String(140), nullable=False)
+    domain = db.Column(db.String(140), db.ForeignKey('innova-domain.id'), nullable=False)
     ip = db.Column(db.String(45), nullable=False)
     port = db.Column(db.Integer, nullable=False)
     base_dn = db.Column(db.String(140), nullable=False)
     bind_dn = db.Column(db.String(140), nullable=False)
     bind_credential = db.Column(db.String(140), nullable=False)
-    ldap_server_id = db.Column(
-        db.Integer,
-        db.ForeignKey('innova-gateway.id'),
-        nullable=False
-    )
 
     def __init__(self, **kwargs):
-        self.id = kwargs.get('id')
-        self.domain = kwargs.get('domain')
-        self.ip = kwargs.get('ip')
-        self.port = kwargs.get('port')
-        self.base_dn = kwargs.get('base_dn')
-        self.bind_dn = kwargs.get('bind_dn')
-        self.bind_credential = kwargs.get('bind_credential')
-        self.ldap_server_id = kwargs.get('ldap_server_id')
+        for attr, value in kwargs.items():
+            setattr(self, attr, value)
 
     def pk(self):
         return self.id
