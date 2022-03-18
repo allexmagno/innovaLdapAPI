@@ -9,8 +9,7 @@ from inndapi.core import LdapCore, LdapStatus
 from inndapi.model import InnovaPerson
 from inndapi.model import InnovaAffiliation
 from inndapi.model import InnovaLdapSync
-from inndapi.enum import InnovaLdapSyncEnum
-
+from inndapi.enum import InnovaLdapSyncEnum, InnovaAffiliationTypeEnum, InnovaAffiliationSubTypeEnum
 from .innova_person_service import InnovaPersonService
 from inndapi.model import LdapServer
 
@@ -111,13 +110,13 @@ class LdapServerService(AbstractCrud):
                     res = ldap.save(
                         rdn=affiliation.get_rdn()+entry.uid, entity=affiliation)
             else:
-                new_entry = InnovaPerson(**entry.to_update)
-                res = ldap.modify(entry.get_rdn(), new_entry, entry)
+                old_entry = InnovaPerson(**entry.to_update)
+                res = ldap.modify(entry.get_rdn(), old_entry, entry)
 
                 for affiliation in entry.to_update['affiliations']:
-                    new_entry: InnovaAffiliation = InnovaAffiliation(**affiliation)
-                    aff_entry = list(filter(lambda x: x.affiliation == new_entry.affiliation, entry.affiliations)).pop()
-                    res = ldap.modify(new_entry.get_rdn()+entry.uid, new_entry, aff_entry)
+                    old_entry: InnovaAffiliation = InnovaAffiliation(**affiliation)
+                    aff_entry = list(filter(lambda x: x.affiliation == old_entry.affiliation, entry.affiliations)).pop()
+                    res = ldap.modify(old_entry.get_rdn()+entry.uid, old_entry, aff_entry)
 
         if res == LdapStatus.SUCCESS:
             sync: InnovaLdapSync = entry.ldap_sync
@@ -230,7 +229,7 @@ class LdapServerService(AbstractCrud):
         sync.date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         self.sync_service.update(entity=sync)
 
-        return self.entry_service.update(entity=new_person, from_ldap=True)
+        return self.entry_service.update(**new_person.to_dict(), from_ldap=True)
 
     @staticmethod
     def process_data(ldap: LdapCore, person: InnovaPerson, search_dn: str = None):
@@ -279,12 +278,56 @@ class LdapServerService(AbstractCrud):
                         affiliation.id = pk_value.pop().id
                     attrs = parse_attr(ldap_format.get(key), res.get(key))
                     affiliation.organization = attrs.get('innovaOrganization')
-                    affiliation.type = attrs.get('innovaAffiliationType')
-                    affiliation.subtype = attrs.get('innovaAffiliationSubType')
+                    affiliation.type = str(attrs.get('innovaAffiliationType'))
+                    affiliation.subtype = str(attrs.get('innovaAffiliationSubType'))
                     affiliation.role = attrs.get('innovaAffiliationRole')
                     affiliation.entrance = attrs.get('brEntranceDate')
                     affiliation.exit = attrs.get('brExitDate')
 
+
                     new_person.affiliations.append(affiliation)
 
+
         return new_person
+
+    def change_password(self, pk: LdapServer.id, **kwargs):
+
+
+        entity: LdapServer = self.find_by_pk(pk)
+        person: InnovaPerson = self.entry_service.mapper(**kwargs)
+        old_password = kwargs.get('old_password')
+        old_person: InnovaPerson = self.entry_service.find_by_pk(person.uid)
+
+        ldap = LdapCore(
+            host=entity.ip,
+            port=entity.port,
+            base_dn=old_person.get_rdn() + ',' + entity.base_dn,
+            bind_dn=old_person.get_rdn() + ',' + entity.base_dn,
+            bind_credential=old_password
+        )
+        ldap.connect()
+
+        try:
+            with ldap:
+                pass
+        except Exception:
+            raise InvalidPassword(self.entry_service.model(), 'Invalid Password')
+
+            
+
+        ldap = LdapCore(
+            host=entity.ip,
+            port=entity.port,
+            base_dn=entity.base_dn,
+            bind_dn=entity.bind_dn,
+            bind_credential=entity.bind_credential
+        )
+
+        ldap.connect()
+
+        with ldap:
+            ldap.modify_password(old_person.get_rdn(), old_password, person.password)
+        
+        return self.sync_entity(pk=pk, uid=person.uid)
+
+

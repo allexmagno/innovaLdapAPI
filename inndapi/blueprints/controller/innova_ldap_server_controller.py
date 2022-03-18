@@ -113,3 +113,19 @@ class InnovaLdapServerIdController(Resource):
             abort(rdne.code, str(rdne))
         except Exception:
             abort(500, "Erro inesperado")
+
+class InnovaLdapServerUserController(Resource):
+
+    def __init__(self):
+        self.service = LdapServerService()
+
+    def put(self, id):
+        person = request.get_json(force=True)
+        try:
+            res = self.service.change_password(pk=id, **person)
+            return jsonify(res.to_dict())
+        except InvalidPassword as ip:
+            abort(ip.code, str(ip))
+        except Exception:
+            abort(500, "Erro inesperado")
+

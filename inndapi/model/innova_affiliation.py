@@ -41,6 +41,13 @@ class InnovaAffiliation(db.Model, SerializerMixin):
         return ['id', 'affiliation', 'organization', 'type', 'subtype', 'role', 'entrance', 'exit']
 
     def map_entry(self):
+        if not self.exit:
+            exit_value = ''
+        elif not isinstance(self.entrance, str):
+            exit_value = self.exit.strftime("%Y%m%d") 
+        else:
+             exit_value = self.entrance.replace('-','')
+
         return {
             'objectclass': {
                 'map': 'objectclass',
@@ -60,11 +67,11 @@ class InnovaAffiliation(db.Model, SerializerMixin):
             },
             'type': {
                 'map': 'innovaAffiliationType',
-                'value': self.type
+                'value': self.type.name
             },
             'subtype': {
                 'map': 'innovaAffiliationSubType',
-                'value': self.subtype
+                'value': self.subtype.name
             },
             'entrance': {
                 'map': 'brentr',
@@ -72,7 +79,7 @@ class InnovaAffiliation(db.Model, SerializerMixin):
             },
             'exit': {
                 'map': 'brexit',
-                'value': self.exit.strftime("%Y%m%d") if not isinstance(self.entrance, str) else self.entrance.replace('-','')
+                'value': exit_value
             }
         }
 

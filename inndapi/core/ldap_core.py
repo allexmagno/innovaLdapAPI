@@ -47,7 +47,14 @@ class LdapCore:
 
             for i in range(len(old_entry)):
                 ldif = modlist.modifyModlist(old_entry[i], new_entry[i])
-                self.__connection.modify_s(self.entity_dn(rdn), ldif)
+                self.__connection.modify(self.entity_dn(rdn), ldif)
+            return LdapStatus.SUCCESS
+        except LDAPError as e:
+            return ast.literal_eval(str(e))['desc']
+
+    def modify_password(self, rdn, old_password, new_password):
+        try:
+            self.__connection.passwd(self.entity_dn(rdn), old_password.encode(), new_password.encode())
             return LdapStatus.SUCCESS
         except LDAPError as e:
             return ast.literal_eval(str(e))['desc']

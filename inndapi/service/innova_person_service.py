@@ -112,26 +112,3 @@ class InnovaPersonService(AbstractCrud):
             entity.ldap_sync = sync
         return super().save(entity=entity)
 
-    def update_password(self, **kwargs):
-        entity = self.mapper(**kwargs)
-        old_person: InnovaPerson = self.find_by_pk(entity.uid)
-
-        old_password = kwargs.get('old_password')
-        passwd = old_person.password.replace('{CRYPT}', '')
-
-        if passwd.encode() == bcrypt.hashpw(old_password.encode(), passwd.encode()):
-            if not old_person.to_update:
-                old_person.to_update = old_person.to_dict()
-                old_person.to_update['to_update'] = {}
-            else:
-                raise ValueError
-
-            salt = bcrypt.gensalt()
-            old_person.password = "{CRYPT}" + bcrypt.hashpw(entity.password.encode(), salt).decode()
-            old_person.ldap_sync.status = InnovaLdapSyncEnum.SYNC
-            old_person.ldap_sync.date=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            return super().update(entity=old_person,update_password=True)
-            
-        else:
-            raise InvalidPassword(self.model(), 'Invalid Password')
-

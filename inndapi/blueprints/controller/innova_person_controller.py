@@ -71,27 +71,4 @@ class InnovaPersonIdController(Resource):
         except Exception:
             abort(500, "Erro inesperado")
 
-class InnovaPersonUserController(Resource):
-
-    def __init__(self):
-        self.service = InnovaPersonService()
-
-    def get(self, uid):
-        try:
-            entity = self.service.find_by_pk(uid)
-            return entity.to_dict()
-        except ResourceDoesNotExist as rdne:
-            abort(rdne.code, str(rdne))
-        except Exception:
-            abort(500, "Erro inesperado")
-
-    def put(self, uid):
-        entity = request.get_json(force=True)
-        try:
-            res = self.service.update_password(**entity)
-            return res.to_dict(), 200
-        except InvalidPassword as ip:
-            abort(ip.code, str(ip))
-        except Exception:
-            abort(500, "Erro inesperado")
 
