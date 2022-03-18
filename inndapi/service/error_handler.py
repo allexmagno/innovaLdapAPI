@@ -30,3 +30,11 @@ class MissedFields(ApiException):
     def __init__(self, model, fields):
         message = '{} {}'.format(model.__name__.title(), fields)
         super().__init__(410, message)
+
+
+class InvalidPassword(ApiException):
+    """Custom exception when resource is not found."""
+
+    def __init__(self, model, fields):
+        message = '{} {}'.format(model.__name__.title(), fields)
+        super().__init__(403, message)

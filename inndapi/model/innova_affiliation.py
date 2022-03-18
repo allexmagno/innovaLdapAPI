@@ -68,11 +68,11 @@ class InnovaAffiliation(db.Model, SerializerMixin):
             },
             'entrance': {
                 'map': 'brentr',
-                'value': self.entrance.strftime("%Y%m%d")
+                'value': self.entrance.strftime("%Y%m%d") if not isinstance(self.entrance, str) else self.entrance.replace('-','')
             },
             'exit': {
                 'map': 'brexit',
-                'value': self.exit.strftime("%Y%m%d") if self.exit else ''
+                'value': self.exit.strftime("%Y%m%d") if not isinstance(self.entrance, str) else self.entrance.replace('-','')
             }
         }
 

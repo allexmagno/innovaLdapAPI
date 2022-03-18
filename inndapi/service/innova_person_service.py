@@ -1,6 +1,7 @@
 import datetime
 import bcrypt
 from .abstract_crud import AbstractCrud
+from .error_handler import InvalidPassword
 
 from inndapi.enum import InnovaLdapSyncEnum
 from .innova_affiliation_service import InnovaAffiliationService
@@ -68,7 +69,7 @@ class InnovaPersonService(AbstractCrud):
         old_person.name = self.parser(entity.name, old_person.name)
         old_person.given_name = self.parser(entity.given_name, old_person.given_name)
         old_person.surname = self.parser(entity.surname, old_person.surname)
-        old_person.email = self.parser(entity.address, old_person.email)
+        old_person.email = self.parser(entity.email, old_person.email)
         old_person.domain = self.parser(entity.domain, old_person.domain)
         old_person.cpf = self.parser(entity.cpf, old_person.cpf)
         old_person.passport = self.parser(entity.passport, old_person.passport)
@@ -106,8 +107,31 @@ class InnovaPersonService(AbstractCrud):
 
             sync = InnovaLdapSync(
                 status=InnovaLdapSyncEnum.PENDING,
-                date=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                domain=kwargs.get('domain')
+                date=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             )
             entity.ldap_sync = sync
         return super().save(entity=entity)
+
+    def update_password(self, **kwargs):
+        entity = self.mapper(**kwargs)
+        old_person: InnovaPerson = self.find_by_pk(entity.uid)
+
+        old_password = kwargs.get('old_password')
+        passwd = old_person.password.replace('{CRYPT}', '')
+
+        if passwd.encode() == bcrypt.hashpw(old_password.encode(), passwd.encode()):
+            if not old_person.to_update:
+                old_person.to_update = old_person.to_dict()
+                old_person.to_update['to_update'] = {}
+            else:
+                raise ValueError
+
+            salt = bcrypt.gensalt()
+            old_person.password = "{CRYPT}" + bcrypt.hashpw(entity.password.encode(), salt).decode()
+            old_person.ldap_sync.status = InnovaLdapSyncEnum.SYNC
+            old_person.ldap_sync.date=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            return super().update(entity=old_person,update_password=True)
+            
+        else:
+            raise InvalidPassword(self.model(), 'Invalid Password')
+

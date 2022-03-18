@@ -1,4 +1,5 @@
 Flask==1.1.2
+itsdangerous==2.0.1
 flask-restplus==0.13.0
 Flask-SQLAlchemy==2.5.1
 flask-marshmallow==0.14.0
@@ -19,3 +20,6 @@ pytz==2021.1
 Unidecode==1.2.0
 schedule==1.1.0
 passlib
+marshmallow-sqlalchemy==0.28.0
+flask-ldap3-login==0.9.17
+Flask-Login==0.5.0

@@ -111,12 +111,13 @@ class LdapServerService(AbstractCrud):
                     res = ldap.save(
                         rdn=affiliation.get_rdn()+entry.uid, entity=affiliation)
             else:
-                old_entry = InnovaPerson(**entry.to_update)
-                res = ldap.modify(entry.get_rdn(), old_entry, entry)
+                new_entry = InnovaPerson(**entry.to_update)
+                res = ldap.modify(entry.get_rdn(), new_entry, entry)
 
                 for affiliation in entry.to_update['affiliations']:
-                    old_entry = InnovaAffiliation(**affiliation)
-                    res = ldap.modify(affiliation.get_rdn()+entry.uid, old_entry, entry)
+                    new_entry: InnovaAffiliation = InnovaAffiliation(**affiliation)
+                    aff_entry = list(filter(lambda x: x.affiliation == new_entry.affiliation, entry.affiliations)).pop()
+                    res = ldap.modify(new_entry.get_rdn()+entry.uid, new_entry, aff_entry)
 
         if res == LdapStatus.SUCCESS:
             sync: InnovaLdapSync = entry.ldap_sync

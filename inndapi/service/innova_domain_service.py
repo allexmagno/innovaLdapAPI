@@ -48,6 +48,8 @@ class InnovaDomainService(AbstractCrud):
 
     def send_mail_create(self, person: InnovaPerson):
         domain: InnovaDomain = self.find_by_pk(person.domain)
+        if not domain.mail_server:
+            return
         mail = MailCore(domain.mail_server)
 
         file = open('inndapi/static/mail.html')

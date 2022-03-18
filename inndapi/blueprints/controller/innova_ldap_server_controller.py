@@ -82,8 +82,8 @@ class InnovaLdapServerIdController(Resource):
                 try:
                     entity = self.service.sync(pk=id)
                     return entity, 200
-                except Exception:
-                    abort(500, 'Erro Inesperado')
+                except Exception as e:
+                    abort(500, str(e))
 
             elif service == 'save':
                 uid = args.get('uid')
