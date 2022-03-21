@@ -15,7 +15,7 @@ class InnovaLdapServeController(Resource):
         try:
             entities = self.service.find_all()
             return jsonify(
-                {"ldap-servers": [entity.to_dict() for entity in entities]}
+                [entity.to_dict() for entity in entities]
             )
         except Exception:
             abort(500, "Erro Inesperado")

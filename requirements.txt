@@ -23,3 +23,4 @@ passlib
 marshmallow-sqlalchemy==0.28.0
 flask-ldap3-login==0.9.17
 Flask-Login==0.5.0
+flask-cors-3.0.10

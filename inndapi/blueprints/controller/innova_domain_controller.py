@@ -14,7 +14,7 @@ class InnovaGatewayController(Resource):
         try:
             gateways = self.service.find_all()
             return jsonify(
-                {"innova_gateway": [gateway.to_dict() for gateway in gateways]}
+                [gateway.to_dict() for gateway in gateways]
             )
         except Exception:
             abort(500, "Erro Inesperado")

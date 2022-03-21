@@ -229,7 +229,7 @@ class LdapServerService(AbstractCrud):
         sync.date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         self.sync_service.update(entity=sync)
 
-        return self.entry_service.update(**new_person.to_dict(), from_ldap=True)
+        return self.entry_service.update(entity=new_person, from_ldap=True)
 
     @staticmethod
     def process_data(ldap: LdapCore, person: InnovaPerson, search_dn: str = None):
