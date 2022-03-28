@@ -69,25 +69,28 @@ class LdapServerService(AbstractCrud):
 
         return old_ldap_server
 
-    def sync_entries(self):
+    def sync_entries(self, pk: LdapServer.id):
         logging.log(logging.INFO, 'Tasks: Start sync entries')
 
-        def run(t_list):
+        def run(t_list, is_update=False):
             for t in t_list:
-                self.save_entry(entity.id, t.uid)
+                self.save_entry(pk, t.uid_innova_person, is_update)
 
-        servers = self.find_all()
-        for entity in servers:
-            to_save = self.sync_service.find_all_by_status(InnovaLdapSyncEnum.VALID, entity.domain)
-            to_update = self.sync_service.find_all_by_status(InnovaLdapSyncEnum.UPDATE, entity.domain)
+        entity = self.find_by_pk(pk)
+        to_save = self.sync_service.find_all_by_status(InnovaLdapSyncEnum.VALID, entity.domain)
+        to_update = self.sync_service.find_all_by_status(InnovaLdapSyncEnum.UPDATE, entity.domain)
 
-            run(to_save)
-            run(to_update)
+        run(to_save, False)
+        run(to_update, True)
+
+        return self.sync(pk)
 
     def save_entry(self, pk: LdapServer.id, uid, is_update=False):
 
         entity: LdapServer = self.find_by_pk(pk)
         entry = self.entry_service.find_by_pk(uid)
+
+        if entry.ldap_sync.status == InnovaLdapSyncEnum.REJECTED: return {}
 
         if not is_update:
             if not entry.ldap_sync.status == InnovaLdapSyncEnum.VALID:
@@ -190,28 +193,32 @@ class LdapServerService(AbstractCrud):
                         }
                     )
                     logging.log(logging.WARN, f'Can\'t sync {base}')
+                except Exception as e:
+                    logging.error(e)
             else:
                 sync: InnovaLdapSync = person.ldap_sync
                 sync.status = InnovaLdapSyncEnum.SYNC
                 sync.date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                 try:
-                    self.sync_service.update(entity=sync)
-                    sync_person = self.entry_service.update(entity=new_person, from_ldap=True)
+                    self.sync_service.update(entity=sync, sync="sync")
+                    sync_person = self.entry_service.update(entity=new_person, sync=sync)
                     people.append(sync_person.to_dict())
                 except Exception:
                     sync_errors.append({'base_dn': base})
                     logging.log(logging.WARN, f'Can\'t update sync {base}')
         people.append(dict({'errors': sync_errors}))
-        return {"innova-person": people}
+        return people
 
     def sync_entity(self, pk: LdapServer.id, uid: InnovaPerson.uid):
 
         entity: LdapServer = self.find_by_pk(pk)
         person: InnovaPerson = self.entry_service.find_by_pk(uid)
 
+        if person.ldap_sync.status == InnovaLdapSyncEnum.REJECTED: return {}
         if not person.ldap_sync.status == InnovaLdapSyncEnum.SYNC \
                 and not person.ldap_sync.status == InnovaLdapSyncEnum.UPDATE:
             raise ResourceDoesNotExist(InnovaPerson, person.uid)
+        
 
         ldap = LdapCore(
             host=entity.ip,

@@ -4,6 +4,7 @@ from .innova_person_controller import InnovaPersonController, InnovaPersonIdCont
 from .innova_domain_controller import InnovaGatewayController, InnovaGatewayIdController
 from .innova_ldap_server_controller import InnovaLdapServeController, InnovaLdapServerIdController, InnovaLdapServerUserController
 from .innova_ldap_sync_controller import InnovaLdapSyncController, InnovaLdapSyncIdController
+from .innova_affiliation_controller import InnovaAffiliationController
 from .mail_server_controller import MailServerController, MailServerIdController
 
 bp = Blueprint("controller-api", __name__, url_prefix="/api/v1")
@@ -17,6 +18,9 @@ def init_app(app):
     """Innova Person Route"""
     api.add_resource(InnovaPersonController, "/person")
     api.add_resource(InnovaPersonIdController, "/person/<uid>")
+
+    """Innova affiliation Route"""
+    api.add_resource(InnovaAffiliationController, "/affiliation/<id>")
 
     """Domain Route"""
     api.add_resource(InnovaGatewayController, "/domain")

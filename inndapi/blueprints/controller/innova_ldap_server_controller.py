@@ -80,7 +80,7 @@ class InnovaLdapServerIdController(Resource):
 
             elif service == 'sync':
                 try:
-                    entity = self.service.sync(pk=id)
+                    entity = self.service.sync_entries(pk=id)
                     return entity, 200
                 except Exception as e:
                     abort(500, str(e))

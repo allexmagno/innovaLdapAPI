@@ -45,6 +45,12 @@ class InnovaLdapSyncService(AbstractCrud):
 
         return old_sync
 
+    def deliberate(self, sync_id: int, resolve: InnovaLdapSyncEnum):
+        entity: InnovaLdapSync = self.find_by_pk(sync_id)
+        entity.status = resolve
+        entity.date = datetime.datetime.now()
+        super().update(entity=entity, update_password=True)
+
     def find_all_by_status(self, status: InnovaLdapSyncEnum, domain):
         return self.model().query.filter(
             and_(
