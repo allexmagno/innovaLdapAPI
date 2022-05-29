@@ -73,6 +73,16 @@ class InnovaLdapSyncIdController(Resource):
             abort(500, "Erro inesperado")
 
     def put(self, id):
+        parser = reqparse.RequestParser()
+        parser.add_argument('resolve', location='args')
+        args = parser.parse_args()
+
+        resolve = args.get('resolve')
+
+        if resolve:
+            self.service.deliberate(sync_id=id, resolve=resolve)
+            return jsonify(dict({'status': 'ok'}))
+
         entity = request.get_json(force=True)
         try:
             res = self.service.update(**entity)

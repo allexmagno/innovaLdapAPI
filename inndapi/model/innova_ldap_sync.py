@@ -10,6 +10,7 @@ class InnovaLdapSync(db.Model, SerializerMixin):
     uid_innova_person = db.Column(db.String(45), db.ForeignKey('innova-person.uid'), nullable=False)
     status = db.Column(db.Enum(InnovaLdapSyncEnum), nullable=False)
     date = db.Column(db.DateTime, nullable=False)
+    domain = db.Column(db.String(140))
 
     def __init__(self, **kwargs):
         for attr, value in kwargs.items():

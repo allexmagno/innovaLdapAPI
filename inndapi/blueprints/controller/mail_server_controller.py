@@ -14,7 +14,7 @@ class MailServerController(Resource):
         try:
             entities = self.service.find_all()
             return jsonify(
-                {"mail-servers": [entity.to_dict() for entity in entities]}
+                [entity.to_dict() for entity in entities]
             )
         except Exception:
             abort(500, "Erro Inesperado")
@@ -56,9 +56,9 @@ class MailServerIdController(Resource):
         except Exception:
             abort(500, "Erro inesperado")
 
-    def delete(self, uid):
+    def delete(self, id):
         try:
-            self.service.delete(uid)
+            self.service.delete(id)
             return jsonify(dict({'status': 'ok'}))
         except ResourceDoesNotExist as rdne:
             abort(rdne.code, str(rdne))

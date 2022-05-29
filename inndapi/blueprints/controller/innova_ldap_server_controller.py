@@ -15,7 +15,7 @@ class InnovaLdapServeController(Resource):
         try:
             entities = self.service.find_all()
             return jsonify(
-                {"ldap-servers": [entity.to_dict() for entity in entities]}
+                [entity.to_dict() for entity in entities]
             )
         except Exception:
             abort(500, "Erro Inesperado")
@@ -48,18 +48,7 @@ class InnovaLdapServerIdController(Resource):
             abort(500, "Erro inesperado")
 
     def put(self, id):
-        if not id:
-            entity = request.get_json(force=True)
-            try:
-                res = self.service.update(**entity)
-                return res.to_dict(), 200
-            except MissedFields as mf:
-                abort(mf.code, str(mf))
-            except ResourceDoesNotExist as rdne:
-                abort(rdne.code, str(rdne))
-            except Exception:
-                abort(500, "Erro inesperado")
-        else:
+
             parser = reqparse.RequestParser()
             parser.add_argument('service', location='args')
             parser.add_argument('uid', location='args')
@@ -80,10 +69,10 @@ class InnovaLdapServerIdController(Resource):
 
             elif service == 'sync':
                 try:
-                    entity = self.service.sync(pk=id)
+                    entity = self.service.sync_entries(pk=id)
                     return entity, 200
-                except Exception:
-                    abort(500, 'Erro Inesperado')
+                except Exception as e:
+                    abort(500, str(e))
 
             elif service == 'save':
                 uid = args.get('uid')
@@ -102,6 +91,18 @@ class InnovaLdapServerIdController(Resource):
                     abort(rdne.code, str(rdne))
                 except Exception:
                     abort(500, 'Erro Inesperado')
+
+            else:
+                entity = request.get_json(force=True)
+                try:
+                    res = self.service.update(**entity)
+                    return res.to_dict(), 200
+                except MissedFields as mf:
+                    abort(mf.code, str(mf))
+                except ResourceDoesNotExist as rdne:
+                    abort(rdne.code, str(rdne))
+                except Exception:
+                    abort(500, "Erro inesperado")
             return jsonify(entity.to_dict())
 
 
@@ -113,3 +114,19 @@ class InnovaLdapServerIdController(Resource):
             abort(rdne.code, str(rdne))
         except Exception:
             abort(500, "Erro inesperado")
+
+class InnovaLdapServerUserController(Resource):
+
+    def __init__(self):
+        self.service = LdapServerService()
+
+    def put(self, id):
+        person = request.get_json(force=True)
+        try:
+            res = self.service.change_password(pk=id, **person)
+            return jsonify(res.to_dict())
+        except InvalidPassword as ip:
+            abort(ip.code, str(ip))
+        except Exception:
+            abort(500, "Erro inesperado")
+
