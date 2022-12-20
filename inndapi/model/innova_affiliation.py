@@ -41,6 +41,13 @@ class InnovaAffiliation(db.Model, SerializerMixin):
         return ['id', 'affiliation', 'organization', 'type', 'subtype', 'role', 'entrance', 'exit']
 
     def map_entry(self):
+        if not self.exit:
+            exit_value = ''
+        elif not isinstance(self.entrance, str):
+            exit_value = self.exit.strftime("%Y%m%d") 
+        else:
+             exit_value = self.entrance.replace('-','')
+
         return {
             'objectclass': {
                 'map': 'objectclass',
@@ -60,19 +67,19 @@ class InnovaAffiliation(db.Model, SerializerMixin):
             },
             'type': {
                 'map': 'innovaAffiliationType',
-                'value': self.type
+                'value': self.type.name
             },
             'subtype': {
                 'map': 'innovaAffiliationSubType',
-                'value': self.subtype
+                'value': self.subtype.name
             },
             'entrance': {
                 'map': 'brentr',
-                'value': self.entrance.strftime("%Y%m%d")
+                'value': self.entrance.strftime("%Y%m%d") if not isinstance(self.entrance, str) else self.entrance.replace('-','')
             },
             'exit': {
                 'map': 'brexit',
-                'value': self.exit.strftime("%Y%m%d") if self.exit else ''
+                'value': exit_value
             }
         }
 
@@ -103,11 +110,11 @@ class InnovaAffiliation(db.Model, SerializerMixin):
 
     def __lt__(self, other):
         return (isinstance(other, self.__class__) and
-                getattr(other, 'id', None) < self.affiliation)
+                getattr(other, 'affiliation', None) < self.affiliation)
 
     def __eq__(self, other):
         return (isinstance(other, self.__class__) and
-                getattr(other, 'id', None) == self.affiliation)
+                getattr(other, 'affiliation', None) == self.affiliation)
 
     def __hash__(self):
         return hash(self.affiliation)

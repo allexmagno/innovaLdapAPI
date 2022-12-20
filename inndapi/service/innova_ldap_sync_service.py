@@ -26,9 +26,6 @@ class InnovaLdapSyncService(AbstractCrud):
     def required_fields(self, entity: InnovaLdapSync) -> list:
         required = []
 
-        if not entity.domain:
-            required.append('domain')
-
         if not entity.status:
             required.append('status')
 
@@ -43,11 +40,16 @@ class InnovaLdapSyncService(AbstractCrud):
     def update_entity(self, entity: InnovaLdapSync):
         old_sync: InnovaLdapSync = self.find_by_pk(entity.id)
 
-        old_sync.domain = self.parser(entity.domain, old_sync.domain)
         old_sync.date = self.parser(entity.date, old_sync.date)
         old_sync.status = self.parser(entity.status, old_sync.status)
 
         return old_sync
+
+    def deliberate(self, sync_id: int, resolve: InnovaLdapSyncEnum):
+        entity: InnovaLdapSync = self.find_by_pk(sync_id)
+        entity.status = resolve
+        entity.date = datetime.datetime.now()
+        super().update(entity=entity, update_password=True)
 
     def find_all_by_status(self, status: InnovaLdapSyncEnum, domain):
         return self.model().query.filter(

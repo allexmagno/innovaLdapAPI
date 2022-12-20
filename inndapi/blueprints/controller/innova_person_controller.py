@@ -14,10 +14,11 @@ class InnovaPersonController(Resource):
         self.domain_service = InnovaDomainService()
 
     def get(self):
+       
         try:
             entities = self.service.find_all()
             return jsonify(
-                {"innova-person": [entity.to_dict() for entity in entities]}
+                [entity.to_dict() for entity in entities]
             )
         except Exception:
             abort(500, "Erro Inesperado")
@@ -51,6 +52,9 @@ class InnovaPersonIdController(Resource):
             abort(500, "Erro inesperado")
 
     def put(self, uid):
+        """
+        file: ../../documentation/innova-person.yml
+        """
         entity = request.get_json(force=True)
         try:
             res = self.service.update(**entity)
@@ -70,3 +74,5 @@ class InnovaPersonIdController(Resource):
             abort(rdne.code, str(rdne))
         except Exception:
             abort(500, "Erro inesperado")
+
+

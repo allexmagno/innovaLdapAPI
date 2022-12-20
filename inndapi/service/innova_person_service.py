@@ -1,6 +1,7 @@
 import datetime
 import bcrypt
 from .abstract_crud import AbstractCrud
+from .error_handler import InvalidPassword
 
 from inndapi.enum import InnovaLdapSyncEnum
 from .innova_affiliation_service import InnovaAffiliationService
@@ -68,7 +69,7 @@ class InnovaPersonService(AbstractCrud):
         old_person.name = self.parser(entity.name, old_person.name)
         old_person.given_name = self.parser(entity.given_name, old_person.given_name)
         old_person.surname = self.parser(entity.surname, old_person.surname)
-        old_person.email = self.parser(entity.address, old_person.email)
+        old_person.email = self.parser(entity.email, old_person.email)
         old_person.domain = self.parser(entity.domain, old_person.domain)
         old_person.cpf = self.parser(entity.cpf, old_person.cpf)
         old_person.passport = self.parser(entity.passport, old_person.passport)
@@ -106,8 +107,8 @@ class InnovaPersonService(AbstractCrud):
 
             sync = InnovaLdapSync(
                 status=InnovaLdapSyncEnum.PENDING,
-                date=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                domain=kwargs.get('domain')
+                date=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             )
             entity.ldap_sync = sync
         return super().save(entity=entity)
+

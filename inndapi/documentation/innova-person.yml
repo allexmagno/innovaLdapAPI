@@ -1,0 +1,72 @@
+Update InnovaPerson
+---
+parameters:
+  - name: innova-person
+    in: body
+    schema:
+      $ref: '#/definitions/InnovaPerson'
+  - name: uid
+    in: path
+    properties:
+      uid:
+        type: string
+    required: true
+
+
+definitions:
+  InnovaPerson:
+    type: object
+    properties:
+      uid:
+        type: string
+      name:
+          type: string
+      given_name:
+          type: string
+      surname:
+          type: string
+      email:
+          type: string
+      cpf:
+          type: string
+      passport:
+          type: string
+      password:
+          type: string
+      affiliations:
+        type: array
+        items:
+          $ref: '#/definitions/InnovaAffiliation'
+      domain:
+        type: string
+
+  InnovaAffiliation:
+    type: object
+    properties:
+      organization:
+        type: string
+      uid_innova_person:
+        type: string
+      exit:
+        type: string
+      role:
+        type: string
+      type:
+        type: string
+      affiliation:
+        type: number
+      subtype:
+        type: string
+      id:
+        type: number
+      entrance:
+        type: string
+        
+responses:
+  201:
+    description: InnovaPerson
+    schema:
+      $ref: '#/definitions/InnovaPerson'
+
+  401:
+    description: Nao autorizado

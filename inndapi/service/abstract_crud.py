@@ -112,6 +112,8 @@ class AbstractCrud(ABC):
         """
         entity = kwargs.get('entity')
         sync = kwargs.get('sync')
+        update_password = kwargs.get('update_password')
+
         if sync:
             self.sync_s(InnovaLdapSyncEnum.SYNC)
         else:
@@ -127,7 +129,8 @@ class AbstractCrud(ABC):
             raise MissedFields(self.model(), required)
 
         try:
-            entity = self.update_entity(entity)
+            if not update_password:
+                entity = self.update_entity(entity)
             db.session.commit()
             return entity
         except Exception as e:

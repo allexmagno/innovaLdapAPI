@@ -22,3 +22,6 @@ class MailServer(db.Model, SerializerMixin):
 
     def __repr__(self):
         return str(self.__dict__)
+
+    def pk(self):
+        return self.id
