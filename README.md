@@ -37,6 +37,9 @@ Fomulário de inclusão de usuário
 ![inclusao de usuario resumo](img/inclusao-de-usuario-resumo.png)
 Resumo de contas registradas com usuário pronto para sincronização com  a base LDAP
 ![pronto para sincronizacao](img/pronto-para-sincronizacao.png)
+
+### 5.3 Notificação via E-mail
+![email notificacao](img/email-notificacao.png)
 ---
 ## Deploy
 
